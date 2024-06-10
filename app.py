@@ -1,7 +1,9 @@
 import streamlit as st
 import requests
 from transformers import pipeline
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 import os
 
 # Hugging Face model options
@@ -83,17 +85,15 @@ if st.button("Get Answer"):
             # Use ChatGPT with RAG approach
             with st.spinner('Loading the model...'):
                 combined_input = f"Context: {overview}\n\nQuestion: {question}"
-                
-                response = openai.ChatCompletion.create(
-                    model="gpt-4",
-                    messages=[
-                            {"role": "system", "content": "You are a helpful assistant."},  # System message to set the assistant's behavior
-                            {"role": "user", "content": combined_input}],  # User message with the query and context
-                    max_tokens=150,
-                    api_key = OPENAI_API_KEY
-                )
-                answer = response.choices[0]['message']['content']
-            
+
+                response = client.chat.completions.create(model="gpt-4",
+                messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},  # System message to set the assistant's behavior
+                        {"role": "user", "content": combined_input}],  # User message with the query and context
+                max_tokens=150,
+                api_key = OPENAI_API_KEY)
+                answer = response.choices[0].message.content
+
             st.write("### Answer")
             st.write(answer)
         else:
